@@ -3,19 +3,21 @@
 -include_lib("wx/include/wx.hrl").
  
 start() ->
-    State = make_window(),
+    State = makeWindow(),
     loop(State),
     wx:destroy().
  
-make_window() ->
+makeWindow() ->
     Server = wx:new(),
     Frame = wxFrame:new(Server, -1, "smoltext"),
     Panel = wxPanel:new(Frame, [{style, ?wxDEFAULT_FRAME_STYLE}]),
+    Menu = wxMenuBar:new(),
+    wxMenuBar:append(Menu, wxMenu:new(), "Test"),
+    wxFrame:setMenuBar(Frame, Menu),
     TextBox = wxStyledTextCtrl:new(Panel, [{style, ?wxTE_MULTILINE}, {style, ?wxTE_DONTWRAP}, {size, wxFrame:getSize(Frame)}]),
     %SIZERS
     TextBoxSizer = wxBoxSizer:new(?wxHORIZONTAL),
     wxSizer:add(TextBoxSizer, TextBox, [{flag, ?wxEXPAND}, {proportion, 1}]),
-    %wxSizer:setItemMinSize(TextBoxSizer, 0, wxPanel:getSize(Panel)),
     wxPanel:setSizer(Panel, TextBoxSizer),
     wxFrame:show(Frame),
     %CONNECTORS
@@ -24,6 +26,8 @@ make_window() ->
     wxPanel:connect(Panel, command_button_clicked),
     wxTextCtrl:connect(TextBox, command_text_updated),
     {Frame, Panel, TextBox, TextBoxSizer, self()}.
+
+%makeMenuBar()
 
 loop(State) ->
 	{Frame, Panel, TextBox, TextBoxSizer, Pid} = State,
