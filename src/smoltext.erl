@@ -30,7 +30,7 @@ makeWindow() ->
 %makeMenuBar()
 
 loop(State) ->
-	{Frame, Panel, TextBox, TextBoxSizer, Pid} = State,
+	{Frame, _, _, _, Pid} = State,
 	receive
         #wx{event=#wxClose{}} ->	
 			if
@@ -58,7 +58,7 @@ loop(State) ->
 		%#wx{id = 22, event=#wxCommand{type = command_text_updated}} ->
 		%	io:fwrite("~p~n", [wxTextCtrl:getValue(TextBox)]),
 		%	loop(State);
-        Msg ->
+        _ ->
 			io:fwrite("LOOP"),
             loop(State)
  
