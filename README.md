@@ -1,5 +1,5 @@
 # smoltext  
-> smoltext is a text editor implemented in Erlang.    
+> smoltext is a text editor implemented in Erlang. It doesn't do very much yet but hopefully it'll do something cool soon.    
   
 ## Build  
 Run the following commands to clone the repository and build the program:    
