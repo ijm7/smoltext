@@ -24,7 +24,7 @@ makeWindow() ->
     %wxFrame:connect(Frame, size),
     wxPanel:connect(Panel, command_button_clicked),
     wxTextCtrl:connect(TextBox, command_text_updated),
-    {Frame, Panel, TextBox, Menu, self()}.
+    {Frame, Panel, TextBox, [], self()}.
 
 makeMenuBar() ->
 	Menu = wxMenuBar:new(),
@@ -44,7 +44,7 @@ makeMenuBar() ->
     Menu.
 
 loop(State) ->
-	{Frame, _, TextBox, _, Pid} = State,
+	{Frame, _, TextBox, Files, Pid} = State,
 	receive
         #wx{event=#wxClose{}} ->	
 			closeWindow(Frame, Pid);
@@ -54,11 +54,14 @@ loop(State) ->
 		%	io:fwrite("~p~n", [wxTextCtrl:getValue(TextBox)]),
 		%	loop(State);
 		#wx{id = 2, event=#wxCommand{type = command_menu_selected} } ->
-			openFile(Frame, TextBox),
-			loop(State);
+			FileName = openFile(Frame, TextBox),
+			AddFile = lists:append([Files, [FileName]]),
+			updateTitle(Frame, AddFile),
+			loop({Frame, [], TextBox, Files, Pid});
 		#wx{id = 4, event=#wxCommand{type = command_menu_selected} } ->
-			saveFile(Frame, TextBox),
-			loop(State);
+			AddFile = lists:append([Files, [saveFile(Frame, TextBox)]]),
+			updateTitle(Frame, AddFile),
+			loop({Frame, [], TextBox, Files, Pid});
         _ ->
 			io:fwrite("LOOP"),
             loop(State)
@@ -80,9 +83,10 @@ saveFile(Frame, TextBox) ->
 	if 
 		ReturnCode == ?wxID_OK ->
 			SavePath = wxFileDialog:getPath(SaveFileDialog),
-			wxStyledTextCtrl:saveFile(TextBox, SavePath);
+			wxStyledTextCtrl:saveFile(TextBox, SavePath),
+			filename:basename(SavePath);
 		true -> 
-			false
+			""
 	end.
 	
 openFile(Frame, TextBox) ->
@@ -91,7 +95,12 @@ openFile(Frame, TextBox) ->
 	if 
 		ReturnCode == ?wxID_OK ->
 			LoadPath = wxFileDialog:getPath(OpenFileDialog),
-			wxStyledTextCtrl:loadFile(TextBox, LoadPath);
+			wxStyledTextCtrl:loadFile(TextBox, LoadPath),
+			filename:basename(LoadPath);
 		true -> 
-			false
+			""
 	end.
+
+updateTitle(Frame, [H|_]) ->
+	wxWindow:setLabel(Frame, "smoltext - " ++ H),
+	ok.
