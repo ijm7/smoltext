@@ -31,7 +31,7 @@ makeMenuBar() ->
 	File = wxMenu:new(),
 	wxMenu:append(File, 1, "New"),
 	wxMenu:append(File, 2, "Open"),
-	wxMenu:append(File, 3, "Save"),
+	wxMenu:append(File, 3, "Save As"),
 	wxMenu:append(File, ?wxID_EXIT, "Quit"),
 	Edit = wxMenu:new(),
 	Help = wxMenu:new(),
@@ -52,6 +52,9 @@ loop(State) ->
 		%#wx{id = 22, event=#wxCommand{type = command_text_updated}} ->
 		%	io:fwrite("~p~n", [wxTextCtrl:getValue(TextBox)]),
 		%	loop(State);
+		#wx{id = 2, event=#wxCommand{type = command_menu_selected} } ->
+			openFile(Frame, TextBox),
+			loop(State);
 		#wx{id = 3, event=#wxCommand{type = command_menu_selected} } ->
 			saveFile(Frame, TextBox),
 			loop(State);
@@ -77,6 +80,17 @@ saveFile(Frame, TextBox) ->
 		ReturnCode == ?wxID_OK ->
 			SavePath = wxFileDialog:getPath(SaveFileDialog),
 			wxStyledTextCtrl:saveFile(TextBox, SavePath);
+		true -> 
+			false
+	end.
+	
+openFile(Frame, TextBox) ->
+	OpenFileDialog = wxFileDialog:new(Frame, [{style, ?wxFD_OPEN}]),
+	ReturnCode = wxDialog:showModal(OpenFileDialog),
+	if 
+		ReturnCode == ?wxID_OK ->
+			LoadPath = wxFileDialog:getPath(OpenFileDialog),
+			wxStyledTextCtrl:loadFile(TextBox, LoadPath);
 		true -> 
 			false
 	end.
