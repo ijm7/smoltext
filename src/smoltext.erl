@@ -31,7 +31,8 @@ makeMenuBar() ->
 	File = wxMenu:new(),
 	wxMenu:append(File, 1, "New"),
 	wxMenu:append(File, 2, "Open"),
-	wxMenu:append(File, 3, "Save As"),
+	wxMenu:append(File, 3, "Save"),
+	wxMenu:append(File, 4, "Save As"),
 	wxMenu:append(File, ?wxID_EXIT, "Quit"),
 	Edit = wxMenu:new(),
 	Help = wxMenu:new(),
@@ -55,7 +56,7 @@ loop(State) ->
 		#wx{id = 2, event=#wxCommand{type = command_menu_selected} } ->
 			openFile(Frame, TextBox),
 			loop(State);
-		#wx{id = 3, event=#wxCommand{type = command_menu_selected} } ->
+		#wx{id = 4, event=#wxCommand{type = command_menu_selected} } ->
 			saveFile(Frame, TextBox),
 			loop(State);
         _ ->
