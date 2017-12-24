@@ -57,15 +57,24 @@ loop(State) ->
 			FileName = openFile(Frame, TextBox),
 			AddFile = lists:append([Files, [FileName]]),
 			updateTitle(Frame, AddFile),
-			loop({Frame, [], TextBox, Files, Pid});
+			loop({Frame, [], TextBox, AddFile, Pid});
+		#wx{id = 3, event=#wxCommand{type = command_menu_selected} } ->
+			if 
+				Files /= [] ->
+					saveFile(TextBox, Files),
+					loop(State);
+				true ->
+					loop(State)
+				end;
+			
 		#wx{id = 4, event=#wxCommand{type = command_menu_selected} } ->
-			AddFile = lists:append([Files, [saveFile(Frame, TextBox)]]),
+			FileName = saveAsFile(Frame, TextBox),
+			AddFile = lists:append([Files, [FileName]]),
 			updateTitle(Frame, AddFile),
-			loop({Frame, [], TextBox, Files, Pid});
+			loop({Frame, [], TextBox, AddFile, Pid});
         _ ->
 			io:fwrite("LOOP"),
             loop(State)
- 
     end.
 
 closeWindow(Frame, Pid) ->
@@ -77,14 +86,17 @@ closeWindow(Frame, Pid) ->
 	wxWindow:destroy(Frame),
 	ok.
 
-saveFile(Frame, TextBox) ->
+saveFile(TextBox, [H|_]) ->
+	wxStyledTextCtrl:saveFile(TextBox, H).
+
+saveAsFile(Frame, TextBox) ->
 	SaveFileDialog = wxFileDialog:new(Frame, [{style, ?wxFD_SAVE}]),
 	ReturnCode = wxDialog:showModal(SaveFileDialog),
 	if 
 		ReturnCode == ?wxID_OK ->
 			SavePath = wxFileDialog:getPath(SaveFileDialog),
 			wxStyledTextCtrl:saveFile(TextBox, SavePath),
-			filename:basename(SavePath);
+			SavePath;
 		true -> 
 			""
 	end.
@@ -96,11 +108,11 @@ openFile(Frame, TextBox) ->
 		ReturnCode == ?wxID_OK ->
 			LoadPath = wxFileDialog:getPath(OpenFileDialog),
 			wxStyledTextCtrl:loadFile(TextBox, LoadPath),
-			filename:basename(LoadPath);
+			LoadPath;
 		true -> 
 			""
 	end.
 
 updateTitle(Frame, [H|_]) ->
-	wxWindow:setLabel(Frame, "smoltext - " ++ H),
+	wxWindow:setLabel(Frame, "smoltext - " ++ filename:basename(H)),
 	ok.
