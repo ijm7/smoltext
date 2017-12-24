@@ -36,11 +36,11 @@ makeMenuBar() ->
 	wxMenu:append(File, ?wxID_EXIT, "Quit"),
 	Edit = wxMenu:new(),
 	Help = wxMenu:new(),
-	wxMenu:append(Help, 1, "About"),
+	wxMenu:append(Help, ?wxID_ABOUT, "About"),
     wxMenuBar:append(Menu, File, "File"),
     wxMenuBar:append(Menu, Edit, "Edit"),
     wxMenuBar:append(Menu, Help, "Help"),
-    wxMenu:connect(File, command_menu_selected),
+    wxMenu:connect(Menu, command_menu_selected),
     Menu.
 
 loop(State) ->
@@ -50,6 +50,9 @@ loop(State) ->
 			closeWindow(Frame, Pid);
         #wx{id = ?wxID_EXIT, event=#wxCommand{type = command_menu_selected} } ->
 			closeWindow(Frame, Pid);
+		#wx{id = ?wxID_ABOUT, event= #wxCommand{type = command_menu_selected} } ->
+			aboutDialog(Frame),
+			loop(State);
 		%#wx{id = 22, event=#wxCommand{type = command_text_updated}} ->
 		%	io:fwrite("~p~n", [wxTextCtrl:getValue(TextBox)]),
 		%	loop(State);
@@ -116,3 +119,19 @@ openFile(Frame, TextBox) ->
 updateTitle(Frame, [H|_]) ->
 	wxWindow:setLabel(Frame, "smoltext - " ++ filename:basename(H)),
 	ok.
+	
+aboutDialog(Frame) ->
+	About = wxDialog:new(Frame, ?wxID_ABOUT, "About", [{style, ?wxDEFAULT_DIALOG_STYLE}]),
+	AboutText = "Smoltext - Version 0.1\n\nSmoltext is a basic text editor with simple functionality.\nTo report issues or suggest additions, please\ngo to https://github.com/ijm7/smoltext/issues\n\n",
+	AboutMessage = wxStaticText:new(About, -1, AboutText, [{style, ?wxALIGN_CENTRE}]),
+	OkButton = wxButton:new(About, ?wxID_OK, [{label, "OK"}]),
+	AboutSizer = wxBoxSizer:new(?wxVERTICAL),
+	{_, VerticalSize} = wxWindow:getSize(About),
+	AboutMessagePosition = trunc(VerticalSize/8),
+	wxSizer:addSpacer(AboutSizer, AboutMessagePosition),
+	wxSizer:add(AboutSizer, AboutMessage, [{flag, ?wxALIGN_CENTRE_HORIZONTAL}, {flag, ?wxALIGN_CENTRE_VERTICAL}]),
+	wxSizer:add(AboutSizer, OkButton, [{flag, ?wxALIGN_CENTRE_HORIZONTAL}, {flag, ?wxALIGN_CENTRE_VERTICAL}]),
+	wxDialog:setSizer(About, AboutSizer),
+	wxDialog:showModal(About),
+	ok.
+	
