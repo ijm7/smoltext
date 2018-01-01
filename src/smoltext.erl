@@ -13,7 +13,10 @@ makeWindow() ->
     Panel = wxPanel:new(Frame, [{style, ?wxDEFAULT_FRAME_STYLE}]),
     Menu = makeMenuBar(),
     wxFrame:setMenuBar(Frame, Menu),
-    TextBox = wxStyledTextCtrl:new(Panel, [{style, ?wxTE_MULTILINE}, {style, ?wxTE_DONTWRAP}, {size, wxFrame:getSize(Frame)}]),
+    StatusBar = wxStatusBar:new(Frame),
+    wxFrame:setStatusBar(Frame, StatusBar),
+    wxFrame:setStatusText(Frame, "Word Count: 0"),
+    TextBox = wxStyledTextCtrl:new(Panel, [{style, ?wxTE_MULTILINE}, {style, ?wxTE_DONTWRAP}, {id, 1}, {size, wxFrame:getSize(Frame)}]),
     %SIZERS
     TextBoxSizer = wxBoxSizer:new(?wxHORIZONTAL),
     wxSizer:add(TextBoxSizer, TextBox, [{flag, ?wxEXPAND}, {proportion, 1}]),
@@ -23,7 +26,7 @@ makeWindow() ->
     wxFrame:connect(Frame, close_window),
     %wxFrame:connect(Frame, size),
     wxPanel:connect(Panel, command_button_clicked),
-    wxTextCtrl:connect(TextBox, command_text_updated),
+    wxTextCtrl:connect(TextBox, stc_updateui),
     {Frame, Panel, TextBox, [], self()}.
 
 makeMenuBar() ->
@@ -53,9 +56,9 @@ loop(State) ->
 		#wx{id = ?wxID_ABOUT, event= #wxCommand{type = command_menu_selected} } ->
 			aboutDialog(Frame),
 			loop(State);
-		%#wx{id = 22, event=#wxCommand{type = command_text_updated}} ->
-		%	io:fwrite("~p~n", [wxTextCtrl:getValue(TextBox)]),
-		%	loop(State);
+		#wx{event=#wxStyledText{type = stc_updateui}} ->
+			updateStatusBar(Frame, TextBox),
+			loop(State);
 		#wx{id = 2, event=#wxCommand{type = command_menu_selected} } ->
 			FileName = openFile(Frame, TextBox),
 			AddFile = lists:append([Files, [FileName]]),
@@ -75,8 +78,8 @@ loop(State) ->
 			AddFile = lists:append([Files, [FileName]]),
 			updateTitle(Frame, AddFile),
 			loop({Frame, [], TextBox, AddFile, Pid});
-        _ ->
-			io:fwrite("LOOP"),
+        Msg ->
+			%io:fwrite("~w~n", [Msg]),
             loop(State)
     end.
 
@@ -118,6 +121,13 @@ openFile(Frame, TextBox) ->
 
 updateTitle(Frame, [H|_]) ->
 	wxWindow:setLabel(Frame, "smoltext - " ++ filename:basename(H)),
+	ok.
+	
+updateStatusBar(Frame, TextBox) ->
+	Row = wxStyledTextCtrl:getCurrentLine(TextBox),
+	Column = wxStyledTextCtrl:getColumn(TextBox, wxStyledTextCtrl:getCurrentPos(TextBox)),
+	StatusText = "line: " ++ integer_to_list(Row + 1) ++ "\tcol: " ++ integer_to_list(Column),
+	wxFrame:setStatusText(Frame, StatusText),
 	ok.
 	
 aboutDialog(Frame) ->
