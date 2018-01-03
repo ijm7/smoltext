@@ -37,11 +37,11 @@ makeMenuBar() ->
 	wxMenu:append(File, 3, "Save"),
 	wxMenu:append(File, 4, "Save As"),
 	wxMenu:append(File, ?wxID_EXIT, "Quit"),
-	Edit = wxMenu:new(),
+	%Edit = wxMenu:new(),
 	Help = wxMenu:new(),
 	wxMenu:append(Help, ?wxID_ABOUT, "About"),
     wxMenuBar:append(Menu, File, "File"),
-    wxMenuBar:append(Menu, Edit, "Edit"),
+    %wxMenuBar:append(Menu, Edit, "Edit"),
     wxMenuBar:append(Menu, Help, "Help"),
     wxMenu:connect(Menu, command_menu_selected),
     Menu.
