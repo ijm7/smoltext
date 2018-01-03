@@ -33,6 +33,8 @@ makeMenuBar() ->
 	File = wxMenu:new(),
 	wxMenu:append(File, 1, "New"),
 	wxMenu:append(File, 2, "Open"),
+	wxMenu:append(File, 3, "Save"),
+	wxMenu:append(File, 4, "Save As"),
 	wxMenu:append(File, ?wxID_EXIT, "Quit"),
 	%Edit = wxMenu:new(),
 	Help = wxMenu:new(),
@@ -44,7 +46,7 @@ makeMenuBar() ->
     Menu.
 
 loop(State) ->
-	{Frame, _, _, _, Pid} = State,
+	{Frame, _, TextBox, Files, Pid} = State,
 	receive
         #wx{event=#wxClose{}} ->	
 			closeWindow(Frame, Pid);
