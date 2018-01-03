@@ -15,7 +15,6 @@ makeWindow() ->
     wxFrame:setMenuBar(Frame, Menu),
     StatusBar = wxStatusBar:new(Frame),
     wxFrame:setStatusBar(Frame, StatusBar),
-    wxFrame:setStatusText(Frame, "Word Count: 0"),
     TextBox = wxStyledTextCtrl:new(Panel, [{style, ?wxTE_MULTILINE}, {style, ?wxTE_DONTWRAP}, {id, 1}, {size, wxFrame:getSize(Frame)}]),
     %SIZERS
     TextBoxSizer = wxBoxSizer:new(?wxHORIZONTAL),
@@ -59,6 +58,9 @@ loop(State) ->
 		#wx{event=#wxStyledText{type = stc_updateui}} ->
 			updateStatusBar(Frame, TextBox),
 			loop(State);
+		#wx{id = 1, event=#wxCommand{type = command_menu_selected} } ->
+			spawn(fun() -> start() end),
+			loop(State);
 		#wx{id = 2, event=#wxCommand{type = command_menu_selected} } ->
 			FileName = openFile(Frame, TextBox),
 			AddFile = lists:append([Files, [FileName]]),
@@ -78,7 +80,7 @@ loop(State) ->
 			AddFile = lists:append([Files, [FileName]]),
 			updateTitle(Frame, AddFile),
 			loop({Frame, [], TextBox, AddFile, Pid});
-        Msg ->
+        _ ->
 			%io:fwrite("~w~n", [Msg]),
             loop(State)
     end.
