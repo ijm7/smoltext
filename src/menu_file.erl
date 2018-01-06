@@ -43,3 +43,12 @@ openFile(Frame, TextBox) ->
 		true -> 
 			""
 	end.
+
+closeWindow(Frame, Pid) ->
+	if
+		Pid /= self() -> Pid ! { -1 };
+		true -> ok
+    end,
+    io:format("~p Closing window ~n",[self()]),
+	wxWindow:destroy(Frame),
+	ok.

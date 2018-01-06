@@ -49,9 +49,9 @@ loop(State) ->
 	{Frame, _, TextBox, Files, Pid} = State,
 	receive
         #wx{event=#wxClose{}} ->	
-			closeWindow(Frame, Pid);
+			menu_file:closeWindow(Frame, Pid);
         #wx{id = ?wxID_EXIT, event=#wxCommand{type = command_menu_selected} } ->
-			closeWindow(Frame, Pid);
+			menu_file:closeWindow(Frame, Pid);
 		#wx{id = ?wxID_ABOUT, event= #wxCommand{type = command_menu_selected} } ->
 			menu_file:aboutDialog(Frame),
 			loop(State);
@@ -84,15 +84,6 @@ loop(State) ->
 			%io:fwrite("~w~n", [Msg]),
             loop(State)
     end.
-
-closeWindow(Frame, Pid) ->
-	if
-		Pid /= self() -> Pid ! { -1 };
-		true -> ok
-    end,
-    io:format("~p Closing window ~n",[self()]),
-	wxWindow:destroy(Frame),
-	ok.
 
 updateTitle(Frame, [H|_]) ->
 	wxWindow:setLabel(Frame, "smoltext - " ++ filename:basename(H)),
