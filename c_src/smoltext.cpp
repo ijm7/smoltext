@@ -10,14 +10,14 @@
 
 std::string exePath() {
 	#ifdef _WIN32
-    char buffer[MAX_PATH];
-    GetModuleFileName(NULL, buffer, MAX_PATH);
-    #elif __unix__
-    char buffer[PATH_MAX];
-    readlink("/proc/self/exe", buffer, PATH_MAX);
-    #endif
-    std::string::size_type pos = std::string(buffer).find_last_of("\\/");
-    return std::string(buffer).substr(0, pos);
+	char buffer[MAX_PATH];
+	GetModuleFileName(NULL, buffer, MAX_PATH);
+	#elif __unix__
+	char buffer[PATH_MAX];
+	readlink("/proc/self/exe", buffer, PATH_MAX);
+	#endif
+	std::string::size_type pos = std::string(buffer).find_last_of("\\/");
+	return std::string(buffer).substr(0, pos);
 }
 
 int main() {
@@ -27,15 +27,15 @@ int main() {
 	#if __unix__
 	nullDir = " > /dev/null";
 	#endif
-    std::string cd = "cd " + exePath() + "/ebin" + nullDir;
-    std::string run = "erl -run smoltext start" + nullDir;
-    std::string command = cd + " && " + run;
+	std::string cd = "cd " + exePath() + "/ebin" + nullDir;
+	std::string run = "erl -run smoltext start" + nullDir;
+	std::string command = cd + " && " + run;
 	#ifdef _WIN32
 	ShowWindow(GetConsoleWindow(), SW_HIDE);
 	#endif
-    system(command.c_str());
+	system(command.c_str());
 	#ifdef _WIN32
-    FreeConsole();
+	FreeConsole();
 	#endif
-    return 0;
+	return 0;
 }
