@@ -1,12 +1,13 @@
 -module(smoltext).
 -compile(export_all).
 -include_lib("wx/include/wx.hrl").
- 
+
 start() ->
     State = makeWindow(),
     loop(State),
-    wx:destroy().
- 
+    wx:destroy(),
+    init:stop().
+
 makeWindow() ->
     Server = wx:new(),
     Frame = wxFrame:new(Server, -1, "smoltext"),
@@ -48,7 +49,7 @@ makeMenuBar() ->
 loop(State) ->
 	{Frame, _, TextBox, Files, Pid} = State,
 	receive
-        #wx{event=#wxClose{}} ->	
+        #wx{event=#wxClose{}} ->
 			menu_file:closeWindow(Frame, Pid);
         #wx{id = ?wxID_EXIT, event=#wxCommand{type = command_menu_selected} } ->
 			menu_file:closeWindow(Frame, Pid);
@@ -67,14 +68,14 @@ loop(State) ->
 			updateTitle(Frame, AddFile),
 			loop({Frame, [], TextBox, AddFile, Pid});
 		#wx{id = 3, event=#wxCommand{type = command_menu_selected} } ->
-			if 
+			if
 				Files /= [] ->
 					menu_file:saveFile(TextBox, Files),
 					loop(State);
 				true ->
 					loop(State)
 				end;
-			
+
 		#wx{id = 4, event=#wxCommand{type = command_menu_selected} } ->
 			FileName = menu_file:saveAsFile(Frame, TextBox),
 			AddFile = lists:append([Files, [FileName]]),
@@ -88,11 +89,10 @@ loop(State) ->
 updateTitle(Frame, [H|_]) ->
 	wxWindow:setLabel(Frame, "smoltext - " ++ filename:basename(H)),
 	ok.
-	
+
 updateStatusBar(Frame, TextBox) ->
 	Row = wxStyledTextCtrl:getCurrentLine(TextBox),
 	Column = wxStyledTextCtrl:getColumn(TextBox, wxStyledTextCtrl:getCurrentPos(TextBox)),
 	StatusText = "line: " ++ integer_to_list(Row + 1) ++ "\tcol: " ++ integer_to_list(Column),
 	wxFrame:setStatusText(Frame, StatusText),
 	ok.
-	

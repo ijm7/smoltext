@@ -5850,8 +5850,8 @@ list-templates:
 
 C_SRC_DIR ?= $(CURDIR)/c_src
 C_SRC_ENV ?= $(C_SRC_DIR)/env.mk
-C_SRC_OUTPUT ?= $(CURDIR)/priv/$(PROJECT)
-C_SRC_TYPE ?= shared
+C_SRC_OUTPUT ?= $(CURDIR)/$(PROJECT)
+C_SRC_TYPE ?= executable
 
 # System type and C compiler/flags.
 
@@ -5859,7 +5859,7 @@ ifeq ($(PLATFORM),msys2)
 	C_SRC_OUTPUT_EXECUTABLE_EXTENSION ?= .exe
 	C_SRC_OUTPUT_SHARED_EXTENSION ?= .dll
 else
-	C_SRC_OUTPUT_EXECUTABLE_EXTENSION ?=
+	C_SRC_OUTPUT_EXECUTABLE_EXTENSION ?=.out
 	C_SRC_OUTPUT_SHARED_EXTENSION ?= .so
 endif
 
@@ -5875,7 +5875,7 @@ ifeq ($(PLATFORM),msys2)
 	CC = /mingw64/bin/gcc
 	export CC
 	CFLAGS ?= -O3 -std=c99 -finline-functions -Wall -Wmissing-prototypes
-	CXXFLAGS ?= -O3 -finline-functions -Wall
+	CXXFLAGS ?= -std=c++11 -finline-functions -Wall
 else ifeq ($(PLATFORM),darwin)
 	CC ?= cc
 	CFLAGS ?= -O3 -std=c99 -arch x86_64 -finline-functions -Wall -Wmissing-prototypes
@@ -5887,8 +5887,9 @@ else ifeq ($(PLATFORM),freebsd)
 	CXXFLAGS ?= -O3 -finline-functions -Wall
 else ifeq ($(PLATFORM),linux)
 	CC ?= gcc
+	CXX ?= g++
 	CFLAGS ?= -O3 -std=c99 -finline-functions -Wall -Wmissing-prototypes
-	CXXFLAGS ?= -O3 -finline-functions -Wall
+	CXXFLAGS ?= -std=c++11 -finline-functions -Wall
 endif
 
 ifneq ($(PLATFORM),msys2)
@@ -5941,8 +5942,7 @@ app:: $(C_SRC_ENV) $(C_SRC_OUTPUT_FILE)
 test-build:: $(C_SRC_ENV) $(C_SRC_OUTPUT_FILE)
 
 $(C_SRC_OUTPUT_FILE): $(OBJECTS)
-	$(verbose) mkdir -p priv/
-	$(link_verbose) $(CC) $(OBJECTS) \
+	$(link_verbose) $(CXX) $(OBJECTS) \
 		$(LDFLAGS) $(if $(filter $(C_SRC_TYPE),shared),-shared) $(LDLIBS) \
 		-o $(C_SRC_OUTPUT_FILE)
 
