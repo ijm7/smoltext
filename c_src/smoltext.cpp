@@ -10,7 +10,6 @@
 
 std::string exePath() {
 	#ifdef _WIN32
-	ShowWindow(GetConsoleWindow(), SW_HIDE);
     char buffer[MAX_PATH];
     GetModuleFileName(NULL, buffer, MAX_PATH);
     #elif __unix__
@@ -22,15 +21,17 @@ std::string exePath() {
 }
 
 int main() {
-	#ifdef _WIN32
-	std::string nullDir = " > NUL";
-	#elif __unix__
-	std::string nullDir = " > /dev/null";
+	//#ifdef _WIN32
+	//std::string nullDir = " > NUL";
+	std::string nullDir = "";
+	#if __unix__
+	nullDir = " > /dev/null";
 	#endif
     std::string cd = "cd " + exePath() + "/ebin" + nullDir;
     std::string run = "erl -run smoltext start" + nullDir;
     std::string command = cd + " && " + run;
 	#ifdef _WIN32
+	ShowWindow(GetConsoleWindow(), SW_HIDE);
 	#endif
     system(command.c_str());
 	#ifdef _WIN32
