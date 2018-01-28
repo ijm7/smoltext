@@ -23,32 +23,32 @@ saveFile(TextBox, [H|_]) ->
 saveAsFile(Frame, TextBox) ->
 	SaveFileDialog = wxFileDialog:new(Frame, [{style, ?wxFD_SAVE}]),
 	ReturnCode = wxDialog:showModal(SaveFileDialog),
-	if 
+	if
 		ReturnCode == ?wxID_OK ->
 			SavePath = wxFileDialog:getPath(SaveFileDialog),
 			wxStyledTextCtrl:saveFile(TextBox, SavePath),
 			SavePath;
 		true -> 
-			""
+		""
 	end.
-	
+
 openFile(Frame, TextBox) ->
 	OpenFileDialog = wxFileDialog:new(Frame, [{style, ?wxFD_OPEN}]),
 	ReturnCode = wxDialog:showModal(OpenFileDialog),
-	if 
+	if
 		ReturnCode == ?wxID_OK ->
 			LoadPath = wxFileDialog:getPath(OpenFileDialog),
 			wxStyledTextCtrl:loadFile(TextBox, LoadPath),
 			LoadPath;
-		true -> 
-			""
+		true ->
+		""
 	end.
 
 closeWindow(Frame, Pid) ->
 	if
 		Pid /= self() -> Pid ! { -1 };
-		true -> ok
-    end,
-    io:format("~p Closing window ~n",[self()]),
-	wxWindow:destroy(Frame),
-	ok.
+	true -> ok
+end,
+io:format("~p Closing window ~n",[self()]),
+wxWindow:destroy(Frame),
+ok.
