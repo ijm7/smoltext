@@ -28,7 +28,7 @@ saveAsFile(Frame, TextBox) ->
 			SavePath = wxFileDialog:getPath(SaveFileDialog),
 			wxStyledTextCtrl:saveFile(TextBox, SavePath),
 			SavePath;
-		true -> 
+		true ->
 		""
 	end.
 

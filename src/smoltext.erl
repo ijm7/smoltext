@@ -3,10 +3,29 @@
 -include_lib("wx/include/wx.hrl").
 
 start() ->
+    io:fwrite("~p~n", [self()]),
+    MasterPid = spawn(fun() -> wait(1) end),
+    spawn(fun() -> newWindow(MasterPid) end).
+    %erlang:suspend_process(self()).
+
+newWindow(MasterPid) ->
     State = makeWindow(),
-    loop(State),
-    wx:destroy(),
-    init:stop().
+    loop(State, MasterPid).
+
+wait(Count) ->
+  io:fwrite("~p~n", [self()]),
+  receive
+    Msg ->
+      NewCount = Count + Msg,
+      if
+        NewCount < 1 ->
+          init:stop();
+        true ->
+          wait(NewCount)
+      end
+    end.
+
+
 
 makeWindow() ->
     Server = wx:new(),
@@ -27,6 +46,7 @@ makeWindow() ->
     %wxFrame:connect(Frame, size),
     wxPanel:connect(Panel, command_button_clicked),
     wxTextCtrl:connect(TextBox, stc_updateui),
+    io:fwrite("~p~n", [self()]),
     {Frame, Panel, TextBox, [], self()}.
 
 makeMenuBar() ->
@@ -46,44 +66,47 @@ makeMenuBar() ->
     wxMenu:connect(Menu, command_menu_selected),
     Menu.
 
-loop(State) ->
+loop(State, MasterPid) ->
     {Frame, _, TextBox, Files, Pid} = State,
     receive
         #wx{event=#wxClose{}} ->
-            menu_file:closeWindow(Frame, Pid);
+            menu_file:closeWindow(Frame, Pid),
+            MasterPid ! -1;
         #wx{id = ?wxID_EXIT, event=#wxCommand{type = command_menu_selected} } ->
-            menu_file:closeWindow(Frame, Pid);
+            menu_file:closeWindow(Frame, Pid),
+          MasterPid ! -1;
         #wx{id = ?wxID_ABOUT, event= #wxCommand{type = command_menu_selected} } ->
             menu_file:aboutDialog(Frame),
-            loop(State);
+            loop(State, MasterPid);
         #wx{event=#wxStyledText{type = stc_updateui}} ->
             updateStatusBar(Frame, TextBox),
-            loop(State);
+            loop(State, MasterPid);
         #wx{id = 1, event=#wxCommand{type = command_menu_selected} } ->
-            spawn(fun() -> start() end),
-            loop(State);
+            spawn(fun() -> newWindow(MasterPid) end),
+            MasterPid ! 1,
+            loop(State, MasterPid);
         #wx{id = 2, event=#wxCommand{type = command_menu_selected} } ->
             FileName = menu_file:openFile(Frame, TextBox),
             AddFile = lists:append([Files, [FileName]]),
             updateTitle(Frame, AddFile),
-            loop({Frame, [], TextBox, AddFile, Pid});
+            loop({Frame, [], TextBox, AddFile, Pid}, MasterPid);
         #wx{id = 3, event=#wxCommand{type = command_menu_selected} } ->
             if
                 Files /= [] ->
                     menu_file:saveFile(TextBox, Files),
-                    loop(State);
+                    loop(State, MasterPid);
                 true ->
-                    loop(State)
+                    loop(State, MasterPid)
                 end;
 
             #wx{id = 4, event=#wxCommand{type = command_menu_selected} } ->
                 FileName = menu_file:saveAsFile(Frame, TextBox),
                 AddFile = lists:append([Files, [FileName]]),
                 updateTitle(Frame, AddFile),
-                loop({Frame, [], TextBox, AddFile, Pid});
+                loop({Frame, [], TextBox, AddFile, Pid}, MasterPid);
             _ ->
                 %io:fwrite("~w~n", [Msg]),
-                loop(State)
+                loop(State, MasterPid)
             end.
 
         updateTitle(Frame, [H|_]) ->
