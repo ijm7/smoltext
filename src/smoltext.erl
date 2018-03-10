@@ -89,9 +89,14 @@ loop(State) ->
             loop(State);
         #wx{id = 2, event=#wxCommand{type = command_menu_selected} } ->
             FileName = menu_file:openFile(Frame, TextBox),
-            AddFile = lists:append([Files, [FileName]]),
-            updateTitle(Frame, AddFile),
-            loop({Frame, [], TextBox, AddFile, Pid, KillPid});
+            if
+                FileName /= "" ->
+                    AddFile = lists:append([Files, [FileName]]),
+                    updateTitle(Frame, AddFile),
+                    loop({Frame, TextBox, AddFile, Pid, KillPid});
+            true ->
+                    loop(State)
+            end;
         #wx{id = 3, event=#wxCommand{type = command_menu_selected} } ->
             if
                 Files /= [] ->
@@ -100,17 +105,19 @@ loop(State) ->
                 true ->
                     loop(State)
                 end;
-
             #wx{id = 4, event=#wxCommand{type = command_menu_selected} } ->
                 FileName = menu_file:saveAsFile(Frame, TextBox),
-                AddFile = lists:append([Files, [FileName]]),
-                updateTitle(Frame, AddFile),
-                loop({Frame, [], TextBox, AddFile, Pid, KillPid});
+                if
+                    FileName /= "" ->
+                        AddFile = lists:append([Files, [FileName]]),
+                        updateTitle(Frame, AddFile),
+                        loop({Frame, TextBox, AddFile, Pid, KillPid});
+                    true ->
+                    loop(State)
+                end;
             _ ->
-                %io:fwrite("~w~n", [Msg]),
                 loop(State)
             end.
-
         updateTitle(Frame, [H|_]) ->
             wxWindow:setLabel(Frame, "smoltext - " ++ filename:basename(H)),
             ok.
