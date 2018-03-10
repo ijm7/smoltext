@@ -41,7 +41,7 @@ openFile(Frame, TextBox) ->
 			wxStyledTextCtrl:loadFile(TextBox, LoadPath),
 			LoadPath;
 		true ->
-		""
+            ""
 	end.
 
 closeWindow(Frame, Pid) ->
