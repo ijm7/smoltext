@@ -2,11 +2,12 @@
 -compile(export_all).
 -include_lib("wx/include/wx.hrl").
 
-start() ->
-    io:fwrite("~p~n", [self()]),
+start(Args) ->
     KillPid = spawn(fun() -> vmKill(1) end),
     spawn(fun() -> newWindow(KillPid) end).
-    %erlang:suspend_process(self()).
+
+  start() ->
+    spawn(fun() -> newWindow(self()) end).
 
 newWindow(KillPid) ->
     State = makeWindow(),
@@ -15,7 +16,6 @@ newWindow(KillPid) ->
     loop(BuildState).
 
 vmKill(Count) ->
-  io:fwrite("~p~n", [self()]),
   receive
     Msg ->
       NewCount = Count + Msg,
@@ -48,7 +48,7 @@ makeWindow() ->
     %wxFrame:connect(Frame, size),
     wxPanel:connect(Panel, command_button_clicked),
     wxTextCtrl:connect(TextBox, stc_updateui),
-    io:fwrite("~p~n", [self()]),
+    updateStatusBar(Frame, TextBox),
     {Frame, TextBox, [], self()}.
 
 makeMenuBar() ->
@@ -125,6 +125,6 @@ loop(State) ->
         updateStatusBar(Frame, TextBox) ->
             Row = wxStyledTextCtrl:getCurrentLine(TextBox),
             Column = wxStyledTextCtrl:getColumn(TextBox, wxStyledTextCtrl:getCurrentPos(TextBox)),
-            StatusText = "line: " ++ integer_to_list(Row + 1) ++ "\tcol: " ++ integer_to_list(Column),
+            StatusText = "line: " ++ integer_to_list(Row + 1) ++ "    column: " ++ integer_to_list(Column),
             wxFrame:setStatusText(Frame, StatusText),
             ok.
