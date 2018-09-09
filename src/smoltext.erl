@@ -3,8 +3,13 @@
 -include_lib("wx/include/wx.hrl").
 
 start(Args) ->
-  KillPid = spawn(fun() -> vmKill(1) end),
-  spawn(fun() -> newWindow(KillPid) end).
+  if
+    Args == "bin" ->
+      KillPid = spawn(fun() -> vmKill(1) end),
+      spawn(fun() -> newWindow(KillPid) end);
+    true ->
+      exit("Incorrect argument provided")
+    end.
 
 start() ->
   spawn(fun() -> newWindow(self()) end).
@@ -58,6 +63,8 @@ makeMenuBar() ->
   wxMenu:append(File, 4, "Save As"),
   wxMenu:append(File, ?wxID_EXIT, "Quit"),
   Edit = wxMenu:new(),
+  wxMenu:append(Edit, 5, "Undo"),
+  wxMenu:append(Edit, 6, "Redo"),
   Help = wxMenu:new(),
   wxMenu:append(Help, ?wxID_ABOUT, "About"),
   wxMenuBar:append(Menu, File, "File"),
