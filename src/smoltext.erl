@@ -120,6 +120,12 @@ loop(State) ->
         true ->
           loop(State)
         end;
+      #wx{id = 5, event=#wxCommand{type = command_menu_selected} } ->
+        wxStyledTextCtrl:undo(TextBox),
+        loop(State);
+      #wx{id = 6, event=#wxCommand{type = command_menu_selected} } ->
+        wxStyledTextCtrl:redo(TextBox),
+        loop(State);
     _ ->
       loop(State)
       end.
