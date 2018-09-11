@@ -65,6 +65,10 @@ makeMenuBar() ->
   Edit = wxMenu:new(),
   wxMenu:append(Edit, 5, "Undo"),
   wxMenu:append(Edit, 6, "Redo"),
+  wxMenu:append(Edit, 7, "Cut"),
+  wxMenu:append(Edit, 8, "Copy"),
+  wxMenu:append(Edit, 9, "Paste"),
+  wxMenu:append(Edit, 10, "Select All"),
   Help = wxMenu:new(),
   wxMenu:append(Help, ?wxID_ABOUT, "About"),
   wxMenuBar:append(Menu, File, "File"),
@@ -125,6 +129,18 @@ loop(State) ->
         loop(State);
       #wx{id = 6, event=#wxCommand{type = command_menu_selected} } ->
         wxStyledTextCtrl:redo(TextBox),
+        loop(State);
+      #wx{id = 7, event=#wxCommand{type = command_menu_selected} } ->
+        wxStyledTextCtrl:cut(TextBox),
+        loop(State);
+      #wx{id = 8, event=#wxCommand{type = command_menu_selected} } ->
+        wxStyledTextCtrl:copy(TextBox),
+        loop(State);
+      #wx{id = 9, event=#wxCommand{type = command_menu_selected} } ->
+        wxStyledTextCtrl:paste(TextBox),
+        loop(State);
+      #wx{id = 10, event=#wxCommand{type = command_menu_selected} } ->
+        wxStyledTextCtrl:selectAll(TextBox),
         loop(State);
     _ ->
       loop(State)
