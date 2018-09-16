@@ -41,6 +41,7 @@ makeWindow() ->
   StatusBar = wxStatusBar:new(Frame),
   wxFrame:setStatusBar(Frame, StatusBar),
   TextBox = wxStyledTextCtrl:new(Panel, [{style, ?wxTE_MULTILINE}, {style, ?wxTE_DONTWRAP}, {id, 1}, {size, wxFrame:getSize(Frame)}]),
+  wxStyledTextCtrl:setMarginWidth(TextBox, 0, 16),
   %SIZERS
   TextBoxSizer = wxBoxSizer:new(?wxHORIZONTAL),
   wxSizer:add(TextBoxSizer, TextBox, [{flag, ?wxEXPAND}, {proportion, 1}]),
