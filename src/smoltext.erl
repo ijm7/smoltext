@@ -8,7 +8,7 @@ start(Args) ->
       KillPid = spawn(fun() -> vmKill(1) end),
       spawn(fun() -> newWindow(KillPid) end);
     true ->
-      exit("Incorrect argument provided")
+      init:stop()
     end.
 
 start() ->
