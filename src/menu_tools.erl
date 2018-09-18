@@ -1,0 +1,3 @@
+-module(menu_tools).
+-compile(export_all).
+-include_lib("wx/include/wx.hrl").

@@ -8,7 +8,7 @@ start(Args) ->
       KillPid = spawn(fun() -> vmKill(1) end),
       spawn(fun() -> newWindow(KillPid) end);
     true ->
-      exit("Incorrect argument provided")
+      init:stop()
     end.
 
 start() ->
@@ -41,6 +41,7 @@ makeWindow() ->
   StatusBar = wxStatusBar:new(Frame),
   wxFrame:setStatusBar(Frame, StatusBar),
   TextBox = wxStyledTextCtrl:new(Panel, [{style, ?wxTE_MULTILINE}, {style, ?wxTE_DONTWRAP}, {id, 1}, {size, wxFrame:getSize(Frame)}]),
+  wxStyledTextCtrl:setMarginWidth(TextBox, 0, 16),
   %SIZERS
   TextBoxSizer = wxBoxSizer:new(?wxHORIZONTAL),
   wxSizer:add(TextBoxSizer, TextBox, [{flag, ?wxEXPAND}, {proportion, 1}]),
@@ -69,10 +70,16 @@ makeMenuBar() ->
   wxMenu:append(Edit, 8, "Copy"),
   wxMenu:append(Edit, 9, "Paste"),
   wxMenu:append(Edit, 10, "Select All"),
+  %Tools = wxMenu:new(),
+  %View = wxMenu:new(),
+  %Options = wxMenu:new(),
   Help = wxMenu:new(),
   wxMenu:append(Help, ?wxID_ABOUT, "About"),
   wxMenuBar:append(Menu, File, "File"),
   wxMenuBar:append(Menu, Edit, "Edit"),
+  %wxMenuBar:append(Menu, Tools, "Tools"),
+  %wxMenuBar:append(Menu, View, "View"),
+  %wxMenuBar:append(Menu, Options, "Options"),
   wxMenuBar:append(Menu, Help, "Help"),
   wxMenu:connect(Menu, command_menu_selected),
   Menu.
