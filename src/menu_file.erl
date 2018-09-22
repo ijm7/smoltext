@@ -17,8 +17,8 @@ aboutDialog(Frame) ->
 	wxDialog:showModal(About),
 	ok.
 
-saveFile(TextBox, [H|_]) ->
-	wxStyledTextCtrl:saveFile(TextBox, H).
+saveFile(TextBox, FileName) ->
+	wxStyledTextCtrl:saveFile(TextBox, FileName).
 
 saveAsFile(Frame, TextBox) ->
 	SaveFileDialog = wxFileDialog:new(Frame, [{style, ?wxFD_SAVE}]),

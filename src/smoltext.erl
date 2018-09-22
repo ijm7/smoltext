@@ -85,7 +85,7 @@ makeMenuBar() ->
   Menu.
 
 loop(State) ->
-  {Frame, TextBox, Files, Pid, KillPid} = State,
+  {Frame, TextBox, FileName, Pid, KillPid} = State,
   receive
     #wx{event=#wxClose{}} ->
       menu_file:closeWindow(Frame, Pid),
@@ -104,30 +104,35 @@ loop(State) ->
       KillPid ! 1,
       loop(State);
     #wx{id = 2, event=#wxCommand{type = command_menu_selected} } ->
-      FileName = menu_file:openFile(Frame, TextBox),
+      NewFileName = menu_file:openFile(Frame, TextBox),
       if
-        FileName /= "" ->
-          AddFile = lists:append([Files, [FileName]]),
-          updateTitle(Frame, AddFile),
-          loop({Frame, TextBox, AddFile, Pid, KillPid});
+        NewFileName /= "" ->
+          updateTitle(Frame, NewFileName),
+          loop({Frame, TextBox, NewFileName, Pid, KillPid});
         true ->
           loop(State)
         end;
     #wx{id = 3, event=#wxCommand{type = command_menu_selected} } ->
       if
-        Files /= [] ->
-          menu_file:saveFile(TextBox, Files),
+        FileName /= "" ->
+          menu_file:saveFile(TextBox, FileName),
           loop(State);
         true ->
-          loop(State)
+          NewFileName = menu_file:saveAsFile(Frame, TextBox),
+          if
+            NewFileName /= "" ->
+              updateTitle(Frame, NewFileName),
+              loop({Frame, TextBox, NewFileName, Pid, KillPid});
+            true ->
+              loop(State)
+            end
         end;
     #wx{id = 4, event=#wxCommand{type = command_menu_selected} } ->
-      FileName = menu_file:saveAsFile(Frame, TextBox),
+      NewFileName = menu_file:saveAsFile(Frame, TextBox),
       if
-        FileName /= "" ->
-          AddFile = lists:append([Files, [FileName]]),
-          updateTitle(Frame, AddFile),
-          loop({Frame, TextBox, AddFile, Pid, KillPid});
+        NewFileName /= "" ->
+          updateTitle(Frame, NewFileName),
+          loop({Frame, TextBox, NewFileName, Pid, KillPid});
         true ->
           loop(State)
         end;
@@ -153,8 +158,8 @@ loop(State) ->
       loop(State)
       end.
 
-updateTitle(Frame, [H|_]) ->
-  wxWindow:setLabel(Frame, "smoltext - " ++ filename:basename(H)),
+updateTitle(Frame, FileName) ->
+  wxWindow:setLabel(Frame, "smoltext - " ++ filename:basename(FileName)),
   ok.
 
 updateStatusBar(Frame, TextBox) ->
