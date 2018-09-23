@@ -57,32 +57,21 @@ makeWindow() ->
 
 makeMenuBar() ->
   Menu = wxMenuBar:new(),
-  File = wxMenu:new(),
-  wxMenu:append(File, 1, "New"),
-  wxMenu:append(File, 2, "Open"),
-  wxMenu:append(File, 3, "Save"),
-  wxMenu:append(File, 4, "Save As"),
-  wxMenu:append(File, ?wxID_EXIT, "Quit"),
-  Edit = wxMenu:new(),
-  wxMenu:append(Edit, 5, "Undo"),
-  wxMenu:append(Edit, 6, "Redo"),
-  wxMenu:append(Edit, 7, "Cut"),
-  wxMenu:append(Edit, 8, "Copy"),
-  wxMenu:append(Edit, 9, "Paste"),
-  wxMenu:append(Edit, 10, "Select All"),
-  %Tools = wxMenu:new(),
-  %View = wxMenu:new(),
-  %Options = wxMenu:new(),
-  Help = wxMenu:new(),
-  wxMenu:append(Help, ?wxID_ABOUT, "About"),
-  wxMenuBar:append(Menu, File, "File"),
-  wxMenuBar:append(Menu, Edit, "Edit"),
-  %wxMenuBar:append(Menu, Tools, "Tools"),
-  %wxMenuBar:append(Menu, View, "View"),
-  %wxMenuBar:append(Menu, Options, "Options"),
-  wxMenuBar:append(Menu, Help, "Help"),
+  File =  [{wxMenu:new(), "File"}, {"New", 1}, {"Open", 2}, {"Save", 3},
+          {"Save As", 4}, {"Quit", ?wxID_EXIT}],
+  Edit =  [{wxMenu:new(), "Edit"}, {"Undo", 5}, {"Redo", 6}, {"Cut", 7},
+          {"Copy", 8}, {"Paste", 9}, {"Select All", 10}],
+  Help =  [{wxMenu:new(), "Help"}, {"Help", ?wxID_ABOUT}],
+  Categories = [File, Edit, Help],
+  [makeMenu(Menu, Category) || Category <- Categories],
   wxMenu:connect(Menu, command_menu_selected),
   Menu.
+
+makeMenu(MenuBar, [MenuCategory|ItemList]) ->
+  {MenuObject, MenuTitle} = MenuCategory,
+  [wxMenu:append(MenuObject, Id, Item) || {Item, Id} <- ItemList],
+  wxMenuBar:append(MenuBar, MenuObject, MenuTitle),
+  ok.
 
 loop(State) ->
   {Frame, TextBox, FileName, Pid, KillPid} = State,
