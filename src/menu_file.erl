@@ -1,5 +1,5 @@
 -module(menu_file).
--compile(export_all).
+-export([aboutDialog/1,saveFile/2,saveAsFile/2,openFile/2,closeWindow/2]).
 -include_lib("wx/include/wx.hrl").
 
 aboutDialog(Frame) ->

@@ -1,5 +1,5 @@
 -module(smoltext).
--compile(export_all).
+-export ([start/0,start/1]).
 -include_lib("wx/include/wx.hrl").
 
 start(Args) ->
