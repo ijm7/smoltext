@@ -11,6 +11,8 @@
 #define PATH_LEN PATH_MAX
 #define NULL_DIR " > /dev/null"
 
+#else
+#error "OS not supported - try compiling Windows or Linux instead"
 #endif
 #include <string.h>
 #include <stdio.h>
@@ -21,7 +23,7 @@ static int exePath(char* path) {
 
 #ifdef _WIN32
 	ret_val = GetModuleFileName(NULL, path, PATH_LEN);
-	if (ret == 0 || ret > PATH_LEN) {
+	if (ret_val == 0 || ret_val > PATH_LEN) {
 		return -2;
 	}
 	last_slash = strrchr(path, '\\');
@@ -40,11 +42,8 @@ static int exePath(char* path) {
 }
 
 int main() {
-#if !defined(_WIN32) && !defined(__linux__)
-	// Incompatible OS
-	return -3;
-#endif
 	char path[PATH_LEN];
+
 	const int ret_val = exePath(path);
 	if (ret_val < 0) {
 		return ret_val;
