@@ -1,15 +1,11 @@
 -module(smoltext).
--export ([start/0,start/1]).
+-compile(export_all).
+-compile(nowarn_export_all).
 -include_lib("wx/include/wx.hrl").
 
-start(Args) ->
-  if
-    Args == "bin" ->
-      KillPid = spawn(fun() -> vmKill(1) end),
-      spawn(fun() -> newWindow(KillPid) end);
-    true ->
-      init:stop()
-    end.
+startFromBin() ->
+  KillPid = spawn(fun() -> vmKill(1) end),
+  spawn(fun() -> newWindow(KillPid) end).
 
 start() ->
   spawn(fun() -> newWindow(self()) end).
