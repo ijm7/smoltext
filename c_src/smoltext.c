@@ -12,7 +12,7 @@
 #define NULL_DIR " > /dev/null"
 
 #else
-#error "OS not supported - try compiling Windows or Linux instead"
+#error "OS not supported - try compiling with Windows or Linux instead"
 #endif
 #include <string.h>
 #include <stdio.h>
