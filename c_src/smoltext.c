@@ -66,12 +66,12 @@ int main() {
 		}
 		strcat(command, commands[i]);
 	}
-	#ifdef _WIN32
+#ifdef _WIN32
 	ShowWindow(GetConsoleWindow(), SW_HIDE);
-	#endif
+#endif
 	system(command);
-	#ifdef _WIN32
+#ifdef _WIN32
 	FreeConsole();
-	#endif
+#endif
 	return 0;
 }
