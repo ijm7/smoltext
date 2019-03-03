@@ -17,9 +17,9 @@
 #include <string.h>
 #include <stdio.h>
 
-static int exePath(char* path) {
+static int exePath(char *path) {
 	int ret_val;
-	char* last_slash;
+	char *last_slash;
 
 #ifdef _WIN32
 	ret_val = GetModuleFileName(NULL, path, PATH_LEN);
@@ -41,30 +41,23 @@ static int exePath(char* path) {
 	return -1;
 }
 
-int main() {
+int main(void) {
 	char path[PATH_LEN];
 
 	const int ret_val = exePath(path);
 	if (ret_val < 0) {
 		return ret_val;
 	}
-
-	const char * const commands[] = {
-		"cd ",
-		path,
-		"/ebin",
-		" && ",
-		"erl -run smoltext startFromBin",
-		NULL_DIR
-	};
 	char command[ARG_MAX];
 
-	int i;
-	for (i = 0; i < sizeof(commands) / sizeof(commands[0]); i++) {
-		if ((strlen(command) + 1 + strlen(commands[i]) + 1) > ARG_MAX) {
-			return -2;
-		}
-		strcat(command, commands[i]);
+	const int written_size = snprintf(command,
+																		ARG_MAX,
+																		"cd %s/ebin && erl -run smoltext startFromBin%s",
+																		path,
+																		NULL_DIR);
+
+	if (written_size <= 0 || written_size > ARG_MAX) {
+		return -2;
 	}
 #ifdef _WIN32
 	ShowWindow(GetConsoleWindow(), SW_HIDE);
